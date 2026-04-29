@@ -1,0 +1,101 @@
+:root {
+  /* Gold palette (kept — matches the logo's gold lettering) */
+  --gold-100: #fff8dc;
+  --gold-200: #f7e7a1;
+  --gold-300: #f1c40f;
+  --gold-400: #d4af37;
+  --gold-500: #c9a227;
+  --gold-600: #b8860b;
+  --gold-700: #8b6508;
+
+  /* Red palette — sampled from the logo */
+  --red-200: #ff5a60;
+  --red-300: #ff2a31;
+  --red-400: #e11a1f;
+  --red-500: #b80a10;
+  --red-600: #870608;
+  --red-700: #5a0406;
+
+  /* Backgrounds — deep red-tinted darks */
+  --bg-0: #1a0405;
+  --bg-1: #260608;
+  --bg-2: #350a0c;
+  --bg-3: #46100f;
+
+  /* Text — warm cream tones for legibility on red */
+  --text: #fff5e0;
+  --text-dim: #efd9a8;
+  --text-muted: #b3957c;
+
+  --border: rgba(212, 175, 55, 0.22);
+  --border-strong: rgba(212, 175, 55, 0.55);
+  --border-red: rgba(225, 26, 31, 0.4);
+  --glass: rgba(225, 26, 31, 0.05);
+
+  --shadow-gold: 0 10px 40px -10px rgba(212, 175, 55, 0.55);
+  --shadow-red: 0 10px 40px -10px rgba(225, 26, 31, 0.55);
+
+  --gradient-gold: linear-gradient(135deg, #f1c40f 0%, #d4af37 35%, #b8860b 70%, #8b6508 100%);
+  --gradient-gold-soft: linear-gradient(135deg, #fff8dc 0%, #f1c40f 50%, #b8860b 100%);
+  --gradient-red: linear-gradient(135deg, #ff2a31 0%, #e11a1f 50%, #870608 100%);
+  --gradient-logo: linear-gradient(135deg, #e11a1f 0%, #b80a10 100%);
+
+  --radius: 18px;
+  --radius-lg: 28px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
+  background: var(--bg-0);
+  color: var(--text);
+  line-height: 1.65;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--gold-400);
+  color: #2a0507;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-1);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gradient-gold);
+  border-radius: 8px;
+}
