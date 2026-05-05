@@ -1704,7 +1704,26 @@ main {
     radial-gradient(500px 220px at 50% 0%, rgba(225, 26, 31, 0.12), transparent 70%),
     var(--bg-2);
 }
-.inventory__empty svg { font-size: 3rem; color: var(--gold-300); margin-bottom: 18px; }
+.inventory__empty-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--gradient-gold);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #2a0507;
+  box-shadow:
+    0 0 0 6px rgba(212, 175, 55, 0.12),
+    0 10px 24px -10px rgba(212, 175, 55, 0.55);
+  animation: bob 4s ease-in-out infinite;
+}
+.inventory__empty-icon svg {
+  font-size: 1.4rem;
+  width: 1.4rem;
+  height: 1.4rem;
+}
 .inventory__empty h3 {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.7rem;

@@ -77,7 +77,9 @@ export default function GoldInventory() {
 
         {published.length === 0 ? (
           <div className="inventory__empty" data-aos="zoom-in">
-            <GiGoldBar />
+            <div className="inventory__empty-icon">
+              <GiGoldBar />
+            </div>
             <h3>No items published yet</h3>
             <p>Items will appear here after they are published from admin.</p>
             <a href="#/admin" className="btn btn--gold btn--sm">

@@ -45,11 +45,18 @@ function App() {
   useEffect(() => {
     const onHash = () => {
       const next = getRoute()
+      const h = window.location.hash || ''
       setRoute(next)
-      // Re-check session each time admin route is entered.
       if (next === 'admin') setAuthed(isAuthed())
       if (next !== 'home') {
         window.scrollTo({ top: 0 })
+      } else if (h.startsWith('#') && !h.startsWith('#/') && h.length > 1) {
+        // Section anchor (e.g. #contact) — scroll after the home view renders.
+        const id = h.slice(1)
+        setTimeout(() => {
+          const el = document.getElementById(id)
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 80)
       }
       setTimeout(() => AOS.refresh(), 50)
     }
