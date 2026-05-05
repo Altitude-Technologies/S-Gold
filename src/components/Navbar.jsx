@@ -4,11 +4,12 @@ import logo from '../assets/logo.png'
 
 const links = [
   { href: '#home', label: 'Home' },
-  { href: '#about', label: 'About' },
-  { href: '#services', label: 'Services' },
-  { href: '#process', label: 'How It Works' },
-  { href: '#why', label: 'Why Us' },
-  { href: '#faq', label: 'FAQ' },
+  // { href: '#about', label: 'About' },
+  // { href: '#services', label: 'Services' },
+  // { href: '#process', label: 'How It Works' },
+  // { href: '#why', label: 'Why Us' },
+  // { href: '#faq', label: 'FAQ' },
+  { href: '#/gold', label: 'Gold' },
   { href: '#contact', label: 'Contact' },
 ]
 
