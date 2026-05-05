@@ -17,7 +17,7 @@ import { GoldProvider } from './contexts/GoldContext'
 import GoldInventory from './pages/GoldInventory'
 import Admin from './pages/Admin'
 import AdminLogin from './pages/AdminLogin'
-import { isAuthed } from './utils/auth'
+import { getSession, onAuthChange } from './utils/auth'
 
 import './App.css'
 
@@ -30,7 +30,8 @@ function getRoute() {
 
 function App() {
   const [route, setRoute] = useState(getRoute)
-  const [authed, setAuthed] = useState(() => isAuthed())
+  const [session, setSession] = useState(null)
+  const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
     AOS.init({
@@ -42,16 +43,33 @@ function App() {
     })
   }, [])
 
+  // Initial session + listen for auth changes
+  useEffect(() => {
+    let mounted = true
+    getSession()
+      .then((s) => {
+        if (!mounted) return
+        setSession(s)
+        setAuthLoading(false)
+      })
+      .catch(() => {
+        if (mounted) setAuthLoading(false)
+      })
+    const unsub = onAuthChange((s) => setSession(s))
+    return () => {
+      mounted = false
+      unsub()
+    }
+  }, [])
+
   useEffect(() => {
     const onHash = () => {
       const next = getRoute()
       const h = window.location.hash || ''
       setRoute(next)
-      if (next === 'admin') setAuthed(isAuthed())
       if (next !== 'home') {
         window.scrollTo({ top: 0 })
       } else if (h.startsWith('#') && !h.startsWith('#/') && h.length > 1) {
-        // Section anchor (e.g. #contact) — scroll after the home view renders.
         const id = h.slice(1)
         setTimeout(() => {
           const el = document.getElementById(id)
@@ -65,16 +83,23 @@ function App() {
   }, [])
 
   const isAdmin = route === 'admin'
+  const authed = !!session
 
   return (
     <GoldProvider>
       {!isAdmin && <Navbar />}
 
       {isAdmin &&
-        (authed ? (
-          <Admin onLogout={() => setAuthed(false)} />
+        (authLoading ? (
+          <main className="login">
+            <div className="login__card" style={{ textAlign: 'center' }}>
+              <p className="muted">Checking session…</p>
+            </div>
+          </main>
+        ) : authed ? (
+          <Admin onLogout={() => setSession(null)} />
         ) : (
-          <AdminLogin onSuccess={() => setAuthed(true)} />
+          <AdminLogin />
         ))}
 
       {route === 'gold' && <GoldInventory />}

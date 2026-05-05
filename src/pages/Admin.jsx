@@ -15,7 +15,9 @@ import { FaSignOutAlt } from 'react-icons/fa'
 import { GiGoldBar } from 'react-icons/gi'
 import { useGold } from '../contexts/GoldContext'
 import { compressImage } from '../utils/image'
-import { clearSession } from '../utils/auth'
+import { signOut } from '../utils/auth'
+import { supabase, IMAGE_BUCKET } from '../lib/supabase'
+import { storagePathFromUrl } from '../contexts/GoldContext'
 import logo from '../assets/logo.png'
 
 const CATEGORIES = [
@@ -77,6 +79,22 @@ export default function Admin({ onLogout }) {
     setTimeout(() => setToast({ msg: '', tone: 'success' }), 3500)
   }
 
+  // Compress → upload to Supabase Storage → store the public URL.
+  async function uploadOne(file) {
+    const dataUrl = await compressImage(file)
+    // dataUrl is "data:image/jpeg;base64,..."
+    const blob = await (await fetch(dataUrl)).blob()
+    const ext = 'jpg'
+    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`
+    const path = `items/${name}`
+    const { error: upErr } = await supabase.storage
+      .from(IMAGE_BUCKET)
+      .upload(path, blob, { contentType: 'image/jpeg', upsert: false })
+    if (upErr) throw upErr
+    const { data } = supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path)
+    return data.publicUrl
+  }
+
   const handleFiles = async (fileList) => {
     if (!fileList || fileList.length === 0) return
     const remaining = MAX_IMAGES - form.images.length
@@ -98,10 +116,10 @@ export default function Admin({ onLogout }) {
         continue
       }
       try {
-        const data = await compressImage(file)
-        accepted.push(data)
+        const url = await uploadOne(file)
+        accepted.push(url)
       } catch (e) {
-        console.warn('compress failed:', e)
+        console.warn('upload failed:', e)
         skipped++
       }
     }
@@ -111,12 +129,12 @@ export default function Admin({ onLogout }) {
     }
     if (skipped) {
       showToast(
-        `${skipped} file(s) skipped (unsupported or too large).`,
+        `${skipped} file(s) skipped (unsupported, too large, or upload failed).`,
         'error'
       )
     } else if (accepted.length) {
       showToast(
-        `${accepted.length} image${accepted.length > 1 ? 's' : ''} added.`
+        `${accepted.length} image${accepted.length > 1 ? 's' : ''} uploaded.`
       )
     }
   }
@@ -133,11 +151,22 @@ export default function Admin({ onLogout }) {
     handleFiles(e.dataTransfer.files)
   }
 
-  const removeImage = (index) =>
+  const removeImage = async (index) => {
+    const url = form.images[index]
     setForm((f) => ({
       ...f,
       images: f.images.filter((_, i) => i !== index),
     }))
+    const path = storagePathFromUrl(url)
+    if (path) {
+      // Best-effort cleanup from storage; ignore failures.
+      try {
+        await supabase.storage.from(IMAGE_BUCKET).remove([path])
+      } catch {
+        /* ignore */
+      }
+    }
+  }
 
   const movePrimary = (index) =>
     setForm((f) => {
@@ -156,29 +185,32 @@ export default function Admin({ onLogout }) {
     return ''
   }
 
-  const submit = (status) => () => {
+  const submit = (status) => async () => {
     const err = validate()
     if (err) {
       showToast(err, 'error')
       return
     }
     const payload = { ...form, status }
+    setBusy(true)
     try {
       if (editingId) {
-        update(editingId, payload)
+        await update(editingId, payload)
         showToast(`Entry updated as ${status}.`)
       } else {
-        add(payload)
+        await add(payload)
         showToast(
           status === 'published'
-            ? 'Saved & published — visible on the Gold page.'
+            ? 'Saved & published — visible to everyone.'
             : 'Saved as draft.'
         )
       }
       setForm(empty)
       setEditingId(null)
     } catch (e) {
-      showToast('Could not save (storage may be full).', 'error')
+      showToast(e?.message || 'Could not save.', 'error')
+    } finally {
+      setBusy(false)
     }
   }
 
@@ -204,18 +236,26 @@ export default function Admin({ onLogout }) {
     setEditingId(null)
   }
 
-  const togglePublish = (item) => {
-    update(item.id, {
-      status: item.status === 'published' ? 'draft' : 'published',
-    })
-    showToast(
-      item.status === 'published' ? 'Unpublished.' : 'Published — now live.'
-    )
+  const togglePublish = async (item) => {
+    try {
+      await update(item.id, {
+        status: item.status === 'published' ? 'draft' : 'published',
+      })
+      showToast(
+        item.status === 'published' ? 'Unpublished.' : 'Published — now live.'
+      )
+    } catch (e) {
+      showToast(e?.message || 'Update failed.', 'error')
+    }
   }
 
-  const changeAvailability = (item, value) => {
-    update(item.id, { availability: value })
-    showToast(`Status updated to ${value}.`)
+  const changeAvailability = async (item, value) => {
+    try {
+      await update(item.id, { availability: value })
+      showToast(`Status updated to ${value}.`)
+    } catch (e) {
+      showToast(e?.message || 'Update failed.', 'error')
+    }
   }
 
   return (
@@ -228,8 +268,12 @@ export default function Admin({ onLogout }) {
           <button
             type="button"
             className="btn btn--ghost btn--sm admin__logout"
-            onClick={() => {
-              clearSession()
+            onClick={async () => {
+              try {
+                await signOut()
+              } catch {
+                /* ignore */
+              }
               onLogout?.()
             }}
             title="Sign out"
@@ -608,10 +652,13 @@ export default function Admin({ onLogout }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          if (confirm(`Delete "${it.title}"?`)) {
-                            remove(it.id)
+                        onClick={async () => {
+                          if (!confirm(`Delete "${it.title}"?`)) return
+                          try {
+                            await remove(it.id)
                             showToast('Entry deleted.')
+                          } catch (e) {
+                            showToast(e?.message || 'Delete failed.', 'error')
                           }
                         }}
                         title="Delete"

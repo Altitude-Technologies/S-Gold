@@ -82,9 +82,9 @@ export default function GoldInventory() {
             </div>
             <h3>No items published yet</h3>
             <p>Items will appear here after they are published from admin.</p>
-            <a href="#/admin" className="btn btn--gold btn--sm">
+            {/* <a href="#/admin" className="btn btn--gold btn--sm">
               Go to Admin <FaArrowRight />
-            </a>
+            </a> */}
           </div>
         ) : (
           <>

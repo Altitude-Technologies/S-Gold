@@ -38,7 +38,12 @@ export default function Footer() {
             <a href="#" aria-label="Facebook">
               <FaFacebook />
             </a>
-            <a href="#" aria-label="Instagram">
+            <a
+              href="https://www.instagram.com/sgoldtnj/?hl=en"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+            >
               <FaInstagram />
             </a>
             <a href="#" aria-label="WhatsApp">
@@ -80,7 +85,11 @@ export default function Footer() {
 
       <div className="footer__bottom">
         <span>© {new Date().getFullYear()} S Gold. All rights reserved.</span>
-        <span>Crafted with transparency · Built on trust.</span>
+        <span className="footer__credit">
+          <span className="footer__heart" aria-hidden="true">❤️</span>
+          &nbsp;Crafted with Innovation by{' '}
+          <strong>Altitude Technologies</strong>
+        </span>
       </div>
     </footer>
   )

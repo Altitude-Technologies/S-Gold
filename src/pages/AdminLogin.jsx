@@ -5,72 +5,38 @@ import {
   FaEye,
   FaEyeSlash,
   FaLock,
-  FaUser,
+  FaEnvelope,
   FaShieldAlt,
 } from 'react-icons/fa'
 import logo from '../assets/logo.png'
-import { startSession, verifyCredentials } from '../utils/auth'
+import { signIn } from '../utils/auth'
 
-const MAX_ATTEMPTS = 5
-const LOCKOUT_MS = 60_000
-
-export default function AdminLogin({ onSuccess }) {
-  const [username, setUsername] = useState('')
+export default function AdminLogin() {
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [attempts, setAttempts] = useState(0)
-  const [lockUntil, setLockUntil] = useState(0)
-  const [, setTick] = useState(0)
-  const userRef = useRef(null)
+  const emailRef = useRef(null)
 
   useEffect(() => {
-    userRef.current?.focus()
+    emailRef.current?.focus()
   }, [])
-
-  // Countdown ticker for the lock-out timer.
-  useEffect(() => {
-    if (!lockUntil) return
-    const id = setInterval(() => setTick((t) => t + 1), 1000)
-    return () => clearInterval(id)
-  }, [lockUntil])
-
-  const remainingLock = Math.max(0, Math.ceil((lockUntil - Date.now()) / 1000))
-  const locked = remainingLock > 0
 
   const submit = async (e) => {
     e.preventDefault()
     setError('')
-    if (locked) return
-    if (!username || !password) {
-      setError('Please enter both username and password.')
+    if (!email || !password) {
+      setError('Please enter both email and password.')
       return
     }
     setBusy(true)
     try {
-      const ok = await verifyCredentials(username.trim(), password)
-      if (ok) {
-        startSession()
-        onSuccess?.()
-      } else {
-        const next = attempts + 1
-        setAttempts(next)
-        if (next >= MAX_ATTEMPTS) {
-          setLockUntil(Date.now() + LOCKOUT_MS)
-          setError(
-            `Too many failed attempts. Try again in ${LOCKOUT_MS / 1000}s.`
-          )
-          setAttempts(0)
-        } else {
-          setError(
-            `Invalid credentials. ${MAX_ATTEMPTS - next} attempt(s) left.`
-          )
-        }
-        setPassword('')
-      }
+      await signIn(email.trim(), password)
+      // App.jsx onAuthStateChange will flip to the Admin view automatically.
     } catch (err) {
-      setError('Authentication error. Please try again.')
+      setError(err?.message || 'Invalid credentials.')
+      setPassword('')
     } finally {
       setBusy(false)
     }
@@ -102,16 +68,16 @@ export default function AdminLogin({ onSuccess }) {
         <form className="login__form" onSubmit={submit}>
           <label className="field">
             <span>
-              <FaUser /> Username
+              <FaEnvelope /> Email
             </span>
             <input
-              ref={userRef}
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username"
+              ref={emailRef}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="admin@example.com"
               autoComplete="username"
-              disabled={locked || busy}
+              disabled={busy}
             />
           </label>
 
@@ -126,7 +92,7 @@ export default function AdminLogin({ onSuccess }) {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter password"
                 autoComplete="current-password"
-                disabled={locked || busy}
+                disabled={busy}
               />
               <button
                 type="button"
@@ -145,17 +111,15 @@ export default function AdminLogin({ onSuccess }) {
           <button
             type="submit"
             className="btn btn--gold btn--block"
-            disabled={busy || locked}
+            disabled={busy}
           >
-            {busy
-              ? 'Signing in…'
-              : locked
-              ? `Locked · ${remainingLock}s`
-              : (
-                <>
-                  Sign In <FaArrowRight />
-                </>
-              )}
+            {busy ? (
+              'Signing in…'
+            ) : (
+              <>
+                Sign In <FaArrowRight />
+              </>
+            )}
           </button>
         </form>
 
