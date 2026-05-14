@@ -14,6 +14,7 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 
 import { GoldProvider } from './contexts/GoldContext'
+import { RateProvider } from './contexts/RateContext'
 import GoldInventory from './pages/GoldInventory'
 import Admin from './pages/Admin'
 import AdminLogin from './pages/AdminLogin'
@@ -86,6 +87,7 @@ function App() {
   const authed = !!session
 
   return (
+    <RateProvider>
     <GoldProvider>
       {!isAdmin && <Navbar />}
 
@@ -118,6 +120,7 @@ function App() {
       )}
       {!isAdmin && <Footer />}
     </GoldProvider>
+    </RateProvider>
   )
 }
 

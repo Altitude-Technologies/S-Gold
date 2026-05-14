@@ -7,6 +7,7 @@ import {
   FaImages,
 } from 'react-icons/fa'
 import { useGold } from '../contexts/GoldContext'
+import { useRate, formatAsOf } from '../contexts/RateContext'
 import ProductModal from '../components/ProductModal'
 
 const PAGE_SIZE = 6
@@ -17,6 +18,7 @@ function statusSlug(s = '') {
 
 export default function GoldInventory() {
   const { items } = useGold()
+  const { rate24k, asOf } = useRate()
   const [page, setPage] = useState(1)
   const [filter, setFilter] = useState('all')
   const [openItem, setOpenItem] = useState(null)
@@ -69,8 +71,10 @@ export default function GoldInventory() {
           <div className="inventory__rate">
             <GiGoldBar />
             <div>
-              <small>Today's 24K Rate</small>
-              <span>₹ 15,219 / g</span>
+              <small>
+                {asOf ? `Rate as of ${formatAsOf(asOf)}` : "Today's 24K Rate"}
+              </small>
+              <span>₹ {rate24k.toLocaleString('en-IN')} / g</span>
             </div>
           </div>
         </header>

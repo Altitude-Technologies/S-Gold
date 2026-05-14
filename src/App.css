@@ -3056,3 +3056,122 @@ main {
 .modal__cta {
   margin-top: auto;
 }
+
+/* ============================================== */
+/* ===========   ADMIN RATE PANEL   ============== */
+/* ============================================== */
+.rate-panel {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  padding: 26px 28px;
+  margin-bottom: 30px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  background:
+    radial-gradient(420px 220px at 100% 0%, rgba(225, 26, 31, 0.18), transparent 60%),
+    radial-gradient(420px 220px at 0% 100%, rgba(212, 175, 55, 0.14), transparent 60%),
+    var(--bg-2);
+  position: relative;
+  overflow: hidden;
+}
+@media (max-width: 800px) {
+  .rate-panel { grid-template-columns: 1fr; }
+}
+
+.rate-panel__current {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.rate-panel__icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: var(--gradient-gold);
+  color: #2a0507;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 12px 28px -10px rgba(212, 175, 55, 0.7);
+  animation: bob 4s ease-in-out infinite;
+}
+.rate-panel__current small {
+  display: block;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.rate-panel__current strong {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
+  font-weight: 700;
+  background: var(--gradient-gold);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.1;
+  letter-spacing: -0.3px;
+}
+.rate-panel__current strong em {
+  font-style: normal;
+  font-size: 0.6em;
+  font-weight: 500;
+  -webkit-text-fill-color: var(--text-dim);
+  margin-left: 4px;
+}
+.rate-panel__date {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.rate-panel__updated {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.rate-panel__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rate-panel__inputs {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 480px) {
+  .rate-panel__inputs { grid-template-columns: 1fr; }
+}
+.rate-panel__form .field { margin: 0; }
+.rate-panel__form .btn { align-self: flex-start; }
+
+.rate-panel__msg {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.86rem;
+  padding: 8px 14px;
+  border-radius: 10px;
+  align-self: flex-start;
+  animation: fade-in 0.3s ease;
+}
+.rate-panel__msg--success {
+  background: rgba(68, 210, 125, 0.12);
+  color: #5fe39a;
+  border: 1px solid rgba(68, 210, 125, 0.3);
+}
+.rate-panel__msg--error {
+  background: rgba(225, 26, 31, 0.12);
+  color: #ff7a85;
+  border: 1px solid rgba(225, 26, 31, 0.35);
+}

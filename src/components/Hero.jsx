@@ -1,8 +1,10 @@
 import { FaPhoneAlt, FaArrowRight } from 'react-icons/fa'
 import { GiGoldBar, GiTwoCoins, GiDiamondRing } from 'react-icons/gi'
 import { MdVerified } from 'react-icons/md'
+import { useRate } from '../contexts/RateContext'
 
 export default function Hero() {
+  const { rate24k } = useRate()
   return (
     <section id="home" className="hero">
       <div className="hero__bg">
@@ -79,7 +81,9 @@ export default function Hero() {
 
           <div className="hero__chip hero__chip--rate" data-float>
             <span className="hero__chip-label">Today's Rate · 24K</span>
-            <span className="hero__chip-value">₹ <em>7,420</em>/g</span>
+            <span className="hero__chip-value">
+              ₹ <em>{rate24k.toLocaleString('en-IN')}</em>/g
+            </span>
           </div>
           <div className="hero__chip hero__chip--xrf" data-float>
             <span className="hero__chip-pulse" />

@@ -18,6 +18,7 @@ import { compressImage } from '../utils/image'
 import { signOut } from '../utils/auth'
 import { supabase, IMAGE_BUCKET } from '../lib/supabase'
 import { storagePathFromUrl } from '../contexts/GoldContext'
+import RatePanel from '../components/RatePanel'
 import logo from '../assets/logo.png'
 
 const CATEGORIES = [
@@ -300,6 +301,8 @@ export default function Admin({ onLogout }) {
             View Gold Inventory →
           </a>
         </header>
+
+        <RatePanel />
 
         <form className="admin__form" onSubmit={(e) => e.preventDefault()}>
           <div className="admin__panels">

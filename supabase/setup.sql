@@ -99,6 +99,48 @@ create policy "auth_delete_images"
   to authenticated
   using (bucket_id = 'gold-images');
 
+-- 4. App settings (key-value) — used for the daily gold rate -----------
+create table if not exists public.app_settings (
+  key         text primary key,
+  value       jsonb not null default '{}'::jsonb,
+  updated_at  timestamptz default now()
+);
+
+drop trigger if exists app_settings_touch on public.app_settings;
+create trigger app_settings_touch
+  before update on public.app_settings
+  for each row execute function public.touch_updated_at();
+
+alter table public.app_settings enable row level security;
+
+-- Anyone can read settings (so the rate appears on the public site)
+drop policy if exists "public_read_settings" on public.app_settings;
+create policy "public_read_settings"
+  on public.app_settings for select
+  using (true);
+
+-- Authenticated admins can insert / update
+drop policy if exists "auth_insert_settings" on public.app_settings;
+create policy "auth_insert_settings"
+  on public.app_settings for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "auth_update_settings" on public.app_settings;
+create policy "auth_update_settings"
+  on public.app_settings for update
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Seed the gold rate row if missing
+insert into public.app_settings (key, value)
+values (
+  'gold_rate',
+  jsonb_build_object('rate_24k', 15219, 'as_of', current_date::text)
+)
+on conflict (key) do nothing;
+
 -- =====================================================================
 --  Done. Now create your admin user:
 --  Dashboard → Authentication → Users → "Add user" → email + password
